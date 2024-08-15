@@ -14,36 +14,31 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests((requests) -> requests                                                
-                .requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/").permitAll()
-                .requestMatchers("/signup/**").anonymous()                
-                .requestMatchers("/restaurants/{restaurantId}/reviews/**", "/favorites/**", "/restaurants/{restaurantId}/favorites/**", "/reservations/**", "/restaurants/{restaurantId}/reservations/**").hasAnyRole("FREE_MEMBER", "PAID_MEMBER")                
-                .requestMatchers("/restaurants/**", "/company", "/terms").hasAnyRole("ANONYMOUS", "FREE_MEMBER", "PAID_MEMBER")     
-                .requestMatchers("/subscription/register", "/subscription/create").hasRole("FREE_MEMBER") 
-                .requestMatchers("/subscription/edit", "/subscription/update", "/subscription/cancel", "/subscription/delete").hasRole("PAID_MEMBER") 
-                .requestMatchers("/admin/**").hasRole("ADMIN")  
-                .anyRequest().authenticated()                   
-            )
-            .formLogin((form) -> form
-                .loginPage("/login")              
-                .loginProcessingUrl("/login")     
-                .defaultSuccessUrl("/?loggedIn")  
-                .failureUrl("/login?error")       
-                .permitAll()
-            )
-            .logout((logout) -> logout
-                .logoutSuccessUrl("/?loggedOut")  
-                .permitAll()
-            );
-            
-        return http.build();
-    }
-    
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				(requests) -> requests.requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/")
+						.permitAll().requestMatchers("/signup/**", "/email", "/emailSent", "/sendResetLink").anonymous()
+						.requestMatchers("/restaurants/{restaurantId}/reviews/**", "/favorites/**",
+								"/restaurants/{restaurantId}/favorites/**", "/reservations/**",
+								"/restaurants/{restaurantId}/reservations/**")
+						.hasAnyRole("FREE_MEMBER", "PAID_MEMBER")
+						.requestMatchers("/restaurants/**", "/company", "/terms")
+						.hasAnyRole("ANONYMOUS", "FREE_MEMBER", "PAID_MEMBER")
+						.requestMatchers("/subscription/register", "/subscription/create").hasRole("FREE_MEMBER")
+						.requestMatchers("/subscription/edit", "/subscription/update", "/subscription/cancel",
+								"/subscription/delete")
+						.hasRole("PAID_MEMBER").requestMatchers("/admin/**").hasRole("ADMIN").anyRequest()
+						.authenticated())
+				.formLogin((form) -> form.loginPage("/login").loginProcessingUrl("/login")
+						.defaultSuccessUrl("/?loggedIn").failureUrl("/login?error").permitAll())
+				.logout((logout) -> logout.logoutSuccessUrl("/?loggedOut").permitAll());
+
+		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 }
